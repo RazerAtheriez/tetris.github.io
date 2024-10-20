@@ -1,18 +1,21 @@
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
-context.scale(20, 20);  // Масштабируем поле
 
+// Масштабирование холста для корректной отрисовки
+context.scale(20, 20);  // 1 блок = 20 пикселей
+
+// Создаем поле игры
 const arena = createMatrix(12, 20);
 
 const colors = [
     null,
-    '#FF0D72',
-    '#0DC2FF',
-    '#0DFF72',
-    '#F538FF',
-    '#FF8E0D',
-    '#FFE138',
-    '#3877FF',
+    '#FF0D72',  // Цвет для T-фигуры
+    '#0DC2FF',  // Цвет для O-фигуры
+    '#0DFF72',  // Цвет для L-фигуры
+    '#F538FF',  // Цвет для J-фигуры
+    '#FF8E0D',  // Цвет для I-фигуры
+    '#FFE138',  // Цвет для S-фигуры
+    '#3877FF',  // Цвет для Z-фигуры
 ];
 
 const player = {
@@ -21,7 +24,7 @@ const player = {
     score: 0,
 };
 
-// Создаем пустое поле для игры
+// Функция для создания матрицы игрового поля
 function createMatrix(w, h) {
     const matrix = [];
     while (h--) {
@@ -30,7 +33,7 @@ function createMatrix(w, h) {
     return matrix;
 }
 
-// Создаем фигуры (T, O, L, J, I, S, Z)
+// Функция для создания различных фигур
 function createPiece(type) {
     if (type === 'T') {
         return [
@@ -77,14 +80,13 @@ function createPiece(type) {
     }
 }
 
-// Проверяем на столкновение
+// Проверка на столкновение с другими фигурами или стенками
 function collide(arena, player) {
     const [m, o] = [player.matrix, player.pos];
     for (let y = 0; y < m.length; ++y) {
         for (let x = 0; x < m[y].length; ++x) {
-            if (m[y][x] !== 0 &&
-               (arena[y + o.y] &&
-                arena[y + o.y][x + o.x]) !== 0) {
+            if (m[y][x] !== 0 && 
+                (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
                 return true;
             }
         }
@@ -92,7 +94,7 @@ function collide(arena, player) {
     return false;
 }
 
-// Объединяем фигуру с полем
+// Объединение фигуры с ареной после падения
 function merge(arena, player) {
     player.matrix.forEach((row, y) => {
         row.forEach((value, x) => {
@@ -103,7 +105,7 @@ function merge(arena, player) {
     });
 }
 
-// Функция очистки заполненных линий
+// Очистка заполненных линий
 function arenaSweep() {
     outer: for (let y = arena.length - 1; y > 0; --y) {
         for (let x = 0; x < arena[y].length; ++x) {
@@ -114,14 +116,12 @@ function arenaSweep() {
 
         const row = arena.splice(y, 1)[0].fill(0);
         arena.unshift(row);
-        ++y;
-
         player.score += 10;
         updateScore();
     }
 }
 
-// Функция поворота фигуры
+// Поворот фигуры
 function rotate(matrix, dir) {
     for (let y = 0; y < matrix.length; ++y) {
         for (let x = 0; x < y; ++x) {
@@ -136,7 +136,7 @@ function rotate(matrix, dir) {
     }
 }
 
-// Управление движением
+// Перемещение фигуры вниз
 function playerDrop() {
     player.pos.y++;
     if (collide(arena, player)) {
@@ -148,6 +148,7 @@ function playerDrop() {
     dropCounter = 0;
 }
 
+// Перемещение фигуры влево/вправо
 function playerMove(dir) {
     player.pos.x += dir;
     if (collide(arena, player)) {
@@ -155,7 +156,7 @@ function playerMove(dir) {
     }
 }
 
-// Сбрасываем игрока после того как фигура завершает движение
+// Сброс игрока (новая фигура)
 function playerReset() {
     const pieces = 'TJLOSZI';
     player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
@@ -186,7 +187,7 @@ function playerRotate(dir) {
     }
 }
 
-// Отрисовка поля
+// Отрисовка игры
 function draw() {
     context.fillStyle = '#000';
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -195,7 +196,7 @@ function draw() {
     drawMatrix(player.matrix, player.pos);
 }
 
-// Рисуем матрицу (игровое поле или фигуру)
+// Отрисовка матрицы
 function drawMatrix(matrix, offset) {
     matrix.forEach((row, y) => {
         row.forEach((value, x) => {
@@ -207,7 +208,7 @@ function drawMatrix(matrix, offset) {
     });
 }
 
-// Основной игровой цикл
+// Основной цикл игры
 let dropCounter = 0;
 let dropInterval = 1000;
 
@@ -244,6 +245,7 @@ document.addEventListener('keydown', event => {
     }
 });
 
+// Инициализация игры
 playerReset();
 updateScore();
-update();
+update();  // Запускаем игровой цикл
