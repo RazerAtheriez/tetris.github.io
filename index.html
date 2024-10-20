@@ -230,7 +230,7 @@
         }
 
         let dropCounter = 0;
-        let dropInterval = 1000;
+        let dropInterval = 1000;  // Фигуры будут падать каждые 1 сек
 
         let lastTime = 0;
         function update(time = 0) {
@@ -239,7 +239,7 @@
 
             dropCounter += deltaTime;
             if (dropCounter > dropInterval) {
-                playerDrop();
+                playerDrop();  // Автоматическое падение
             }
 
             draw();
