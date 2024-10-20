@@ -1,11 +1,11 @@
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 
-// Устанавливаем размер холста в соответствии с игровым полем (12 блоков шириной и 20 высотой).
-canvas.width = 12 * 20;  // 12 блоков шириной по 20 пикселей каждый
-canvas.height = 20 * 20; // 20 блоков высотой по 20 пикселей каждый
+// Размер холста для больших экранов
+canvas.width = 320;  // Теперь шире, чтобы адаптироваться под телефон
+canvas.height = 640; // Высота увеличена для более приятного игрового опыта
 
-context.scale(20, 20);  // Масштабируем так, чтобы каждый блок был 20x20 пикселей
+context.scale(20, 20);  // 1 блок = 20x20 пикселей
 
 const arena = createMatrix(12, 20);
 
@@ -26,7 +26,7 @@ const player = {
     score: 0,
 };
 
-// Создаем игровую матрицу
+// Создаем игровое поле
 function createMatrix(w, h) {
     const matrix = [];
     while (h--) {
@@ -97,7 +97,7 @@ function collide(arena, player) {
     return false;
 }
 
-// Добавляем фигуру к арене, когда она касается нижней границы или других фигур
+// Добавляем фигуру к арене, когда она касается границ или других фигур
 function merge(arena, player) {
     player.matrix.forEach((row, y) => {
         row.forEach((value, x) => {
@@ -108,7 +108,7 @@ function merge(arena, player) {
     });
 }
 
-// Убираем полностью заполненные линии
+// Убираем заполненные линии
 function arenaSweep() {
     outer: for (let y = arena.length - 1; y > 0; --y) {
         for (let x = 0; x < arena[y].length; ++x) {
@@ -213,7 +213,7 @@ function drawMatrix(matrix, offset) {
 
 // Основной цикл игры
 let dropCounter = 0;
-let dropInterval = 500;  // Ускорили падение фигур
+let dropInterval = 500;  // Ускоренное падение фигур
 
 let lastTime = 0;
 function update(time = 0) {
@@ -235,16 +235,14 @@ function updateScore() {
 
 // Управление с клавиатуры
 document.addEventListener('keydown', event => {
-    if (event.keyCode === 37) {
+    if (event.key === 'ArrowLeft' || event.key === 'a') {
         playerMove(-1);
-    } else if (event.keyCode === 39) {
+    } else if (event.key === 'ArrowRight' || event.key === 'd') {
         playerMove(1);
-    } else if (event.keyCode === 40) {
+    } else if (event.key === 'ArrowDown' || event.key === 's') {
         playerDrop();
-    } else if (event.keyCode === 81) {
-        playerRotate(-1);
-    } else if (event.keyCode === 87) {
-        playerRotate(1);
+    } else if (event.key === 'ArrowUp' || event.key === 'w') {
+        playerRotate(1);  // Вращаем через верхнюю стрелку или W
     }
 });
 
