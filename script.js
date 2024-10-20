@@ -1,23 +1,23 @@
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 
-// Размер холста для больших экранов
-canvas.width = 320;  // Теперь шире, чтобы адаптироваться под телефон
-canvas.height = 640; // Высота увеличена для более приятного игрового опыта
+// Устанавливаем размеры холста под окно Telegram Menu
+canvas.width = 150;  // 150 пикселей по ширине (чтобы адаптировать к Telegram Menu)
+canvas.height = 300; // Высота = 300 пикселей
 
-context.scale(20, 20);  // 1 блок = 20x20 пикселей
+context.scale(15, 15);  // Масштабируем блоки для компактного отображения
 
-const arena = createMatrix(12, 20);
+const arena = createMatrix(10, 20);  // Меньшее игровое поле, чтобы умещалось в экран
 
 const colors = [
     null,
-    '#FF0D72',  // Цвет для T-фигуры
-    '#0DC2FF',  // Цвет для O-фигуры
-    '#0DFF72',  // Цвет для L-фигуры
-    '#F538FF',  // Цвет для J-фигуры
-    '#FF8E0D',  // Цвет для I-фигуры
-    '#FFE138',  // Цвет для S-фигуры
-    '#3877FF',  // Цвет для Z-фигуры
+    '#FF0D72',
+    '#0DC2FF',
+    '#0DFF72',
+    '#F538FF',
+    '#FF8E0D',
+    '#FFE138',
+    '#3877FF',
 ];
 
 const player = {
@@ -26,7 +26,7 @@ const player = {
     score: 0,
 };
 
-// Создаем игровое поле
+// Создаем матрицу игрового поля
 function createMatrix(w, h) {
     const matrix = [];
     while (h--) {
@@ -82,7 +82,7 @@ function createPiece(type) {
     }
 }
 
-// Проверка на столкновение с границами или другими фигурами
+// Проверка столкновения с другими фигурами или границами
 function collide(arena, player) {
     const [m, o] = [player.matrix, player.pos];
     for (let y = 0; y < m.length; ++y) {
@@ -97,7 +97,7 @@ function collide(arena, player) {
     return false;
 }
 
-// Добавляем фигуру к арене, когда она касается границ или других фигур
+// Добавляем фигуру к арене
 function merge(arena, player) {
     player.matrix.forEach((row, y) => {
         row.forEach((value, x) => {
@@ -139,7 +139,7 @@ function rotate(matrix, dir) {
     }
 }
 
-// Перемещаем фигуру вниз
+// Перемещение фигуры вниз
 function playerDrop() {
     player.pos.y++;
     if (collide(arena, player)) {
@@ -151,7 +151,7 @@ function playerDrop() {
     dropCounter = 0;
 }
 
-// Перемещаем фигуру влево или вправо
+// Перемещение фигуры влево/вправо
 function playerMove(dir) {
     player.pos.x += dir;
     if (collide(arena, player)) {
@@ -213,7 +213,7 @@ function drawMatrix(matrix, offset) {
 
 // Основной цикл игры
 let dropCounter = 0;
-let dropInterval = 500;  // Ускоренное падение фигур
+let dropInterval = 600;
 
 let lastTime = 0;
 function update(time = 0) {
@@ -229,6 +229,7 @@ function update(time = 0) {
     requestAnimationFrame(update);
 }
 
+// Обновление счета
 function updateScore() {
     document.getElementById('score').innerText = 'Счёт: ' + player.score;
 }
@@ -242,26 +243,55 @@ document.addEventListener('keydown', event => {
     } else if (event.key === 'ArrowDown' || event.key === 's') {
         playerDrop();
     } else if (event.key === 'ArrowUp' || event.key === 'w') {
-        playerRotate(1);  // Вращаем через верхнюю стрелку или W
+        playerRotate(1);
     }
 });
 
-// Сенсорное управление
-document.getElementById('move-left').addEventListener('click', () => {
-    playerMove(-1);
-});
+// Сенсорное управление (свайпы для движения)
+canvas.addEventListener('touchstart', handleTouchStart, false);
+canvas.addEventListener('touchmove', handleTouchMove, false);
 
-document.getElementById('move-right').addEventListener('click', () => {
-    playerMove(1);
-});
+let xDown = null;
+let yDown = null;
 
-document.getElementById('rotate').addEventListener('click', () => {
-    playerRotate(1);
-});
+function getTouches(evt) {
+    return evt.touches || evt.originalEvent.touches;
+}
 
-document.getElementById('drop').addEventListener('click', () => {
-    playerDrop();
-});
+function handleTouchStart(evt) {
+    const firstTouch = getTouches(evt)[0];
+    xDown = firstTouch.clientX;
+    yDown = firstTouch.clientY;
+}
+
+function handleTouchMove(evt) {
+    if (!xDown || !yDown) {
+        return;
+    }
+
+    const xUp = evt.touches[0].clientX;
+    const yUp = evt.touches[0].clientY;
+
+    const xDiff = xDown - xUp;
+    const yDiff = yDown - yUp;
+
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+        if (xDiff > 0) {
+            playerMove(-1);  // Свайп влево
+        } else {
+            playerMove(1);  // Свайп вправо
+        }
+    } else {
+        if (yDiff > 0) {
+            playerRotate(1);  // Свайп вверх для вращения
+        } else {
+            playerDrop();  // Свайп вниз для ускоренного падения
+        }
+    }
+
+    xDown = null;
+    yDown = null;
+}
 
 // Инициализация игры
 playerReset();
