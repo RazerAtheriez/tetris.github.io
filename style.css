@@ -15,14 +15,22 @@ canvas {
     border: 2px solid #fff;
 }
 
+/* Теперь делаем холст больше, чтобы адаптироваться под телефон */
+canvas {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+}
+
 #score {
     margin-top: 20px;
-    font-size: 1.5rem;
+    font-size: 2rem;
 }
 
 .controls {
     margin-top: 20px;
     display: flex;
+    justify-content: center;
 }
 
 .controls button {
