@@ -1,10 +1,12 @@
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 
-// Масштабирование холста для корректной отрисовки
-context.scale(20, 20);  // 1 блок = 20 пикселей
+// Устанавливаем размер холста в соответствии с игровым полем (12 блоков шириной и 20 высотой).
+canvas.width = 12 * 20;  // 12 блоков шириной по 20 пикселей каждый
+canvas.height = 20 * 20; // 20 блоков высотой по 20 пикселей каждый
 
-// Создаем поле игры
+context.scale(20, 20);  // Масштабируем так, чтобы каждый блок был 20x20 пикселей
+
 const arena = createMatrix(12, 20);
 
 const colors = [
@@ -24,7 +26,7 @@ const player = {
     score: 0,
 };
 
-// Функция для создания матрицы игрового поля
+// Создаем игровую матрицу
 function createMatrix(w, h) {
     const matrix = [];
     while (h--) {
@@ -33,7 +35,7 @@ function createMatrix(w, h) {
     return matrix;
 }
 
-// Функция для создания различных фигур
+// Функция для создания фигур
 function createPiece(type) {
     if (type === 'T') {
         return [
@@ -80,13 +82,14 @@ function createPiece(type) {
     }
 }
 
-// Проверка на столкновение с другими фигурами или стенками
+// Проверка на столкновение с границами или другими фигурами
 function collide(arena, player) {
     const [m, o] = [player.matrix, player.pos];
     for (let y = 0; y < m.length; ++y) {
         for (let x = 0; x < m[y].length; ++x) {
-            if (m[y][x] !== 0 && 
-                (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+            if (m[y][x] !== 0 &&
+               (arena[y + o.y] &&
+                arena[y + o.y][x + o.x]) !== 0) {
                 return true;
             }
         }
@@ -94,7 +97,7 @@ function collide(arena, player) {
     return false;
 }
 
-// Объединение фигуры с ареной после падения
+// Добавляем фигуру к арене, когда она касается нижней границы или других фигур
 function merge(arena, player) {
     player.matrix.forEach((row, y) => {
         row.forEach((value, x) => {
@@ -105,7 +108,7 @@ function merge(arena, player) {
     });
 }
 
-// Очистка заполненных линий
+// Убираем полностью заполненные линии
 function arenaSweep() {
     outer: for (let y = arena.length - 1; y > 0; --y) {
         for (let x = 0; x < arena[y].length; ++x) {
@@ -136,7 +139,7 @@ function rotate(matrix, dir) {
     }
 }
 
-// Перемещение фигуры вниз
+// Перемещаем фигуру вниз
 function playerDrop() {
     player.pos.y++;
     if (collide(arena, player)) {
@@ -148,7 +151,7 @@ function playerDrop() {
     dropCounter = 0;
 }
 
-// Перемещение фигуры влево/вправо
+// Перемещаем фигуру влево или вправо
 function playerMove(dir) {
     player.pos.x += dir;
     if (collide(arena, player)) {
@@ -156,7 +159,7 @@ function playerMove(dir) {
     }
 }
 
-// Сброс игрока (новая фигура)
+// Сбрасываем игрока (новая фигура)
 function playerReset() {
     const pieces = 'TJLOSZI';
     player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
@@ -210,7 +213,7 @@ function drawMatrix(matrix, offset) {
 
 // Основной цикл игры
 let dropCounter = 0;
-let dropInterval = 1000;
+let dropInterval = 500;  // Ускорили падение фигур
 
 let lastTime = 0;
 function update(time = 0) {
@@ -243,6 +246,23 @@ document.addEventListener('keydown', event => {
     } else if (event.keyCode === 87) {
         playerRotate(1);
     }
+});
+
+// Сенсорное управление
+document.getElementById('move-left').addEventListener('click', () => {
+    playerMove(-1);
+});
+
+document.getElementById('move-right').addEventListener('click', () => {
+    playerMove(1);
+});
+
+document.getElementById('rotate').addEventListener('click', () => {
+    playerRotate(1);
+});
+
+document.getElementById('drop').addEventListener('click', () => {
+    playerDrop();
 });
 
 // Инициализация игры
