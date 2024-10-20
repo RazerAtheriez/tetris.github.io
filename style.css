@@ -10,35 +10,17 @@ body {
     font-family: Arial, sans-serif;
 }
 
+/* Адаптируем холст под размер Telegram Menu */
 canvas {
     background-color: #111;
     border: 2px solid #fff;
-}
-
-/* Теперь делаем холст больше, чтобы адаптироваться под телефон */
-canvas {
-    width: 100%;
-    max-width: 480px;
-    height: auto;
+    width: 100%; /* Автоматически масштабируем */
+    max-width: 300px; /* Ограничиваем максимальную ширину под Telegram Menu */
+    height: 300px; /* Высота холста под размер окна меню */
 }
 
 #score {
-    margin-top: 20px;
-    font-size: 2rem;
-}
-
-.controls {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-}
-
-.controls button {
-    background-color: #333;
-    color: white;
-    border: none;
-    margin: 0 10px;
-    padding: 10px 20px;
-    font-size: 20px;
-    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 1.2rem;
+    text-align: center;
 }
